@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>登录</title>
+<link rel="icon" th:href="@{/assets/favicon.ico}" type="image/ico">
+<meta name="keywords" content="LightYear,LightYearAdmin,光年,后台模板,后台管理系统,光年HTML模板">
+<meta name="description" content="Light Year Admin V4是一个后台管理系统的HTML模板，基于Bootstrap v4.4.1。">
+<meta name="author" content="yinqi">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/bootstrap.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/materialdesignicons.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/animate.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/style.min.css}">
+<style>
+.login-form .has-feedback {
+    position: relative;
+}
+.login-form .has-feedback .form-control {
+    padding-left: 36px;
+}
+.login-form .has-feedback .mdi {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: auto;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    z-index: 4;
+    color: #dcdcdc;
+    display: block;
+    text-align: center;
+    pointer-events: none;
+}
+.login-form .has-feedback.row .mdi {
+    left: 15px;
+}
+</style>
+  <script type="text/javascript">
+    var url = window.location.href;
+    var baseUrl = ''
+    var pathname = window.location.pathname;
+    if (pathname === '/') {
+       baseUrl = url; // URL 中不包含路径部分
+    } else {
+       baseUrl = url.substring(0, url.indexOf(pathname)); // 提取基础 URL 部分
+    }
+  </script>
+</head>
+
+<body class="center-vh" th:style="'background-image: url(' + @{/lightYear/images/login-bg-2.jpg} + '); background-size: cover;'">
+<div class="card card-shadowed p-5 w-420 mb-0 mr-2 ml-2">
+  <div class="text-center mb-3">
+<!--    <a style="cursor: pointer"> <img alt="light year admin" th:src="@{/lightYear/images/logo-sidebar.png}"> </a>-->
+    <h3 style="cursor: pointer">商户登录</h3>
+  </div>
+
+  <form action="/login" method="post" class="login-form" name="login-form">
+    <div class="form-group has-feedback">
+      <span class="mdi mdi-account" aria-hidden="true"></span>
+      <input type="text" name="merchantName" class="form-control" placeholder="用户名" required>
+    </div>
+
+    <div class="form-group has-feedback">
+      <span class="mdi mdi-lock" aria-hidden="true"></span>
+      <input type="password" name="merchantPassword" class="form-control" placeholder="密码" required>
+    </div>
+
+    <div class="form-group">
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="rememberme">
+        <label class="custom-control-label not-user-select" for="rememberme">自动登录</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-block btn-primary" type="submit">立即登录</button>
+      <button class="btn btn-block btn-default" type="button" id="regBtn">注册</button>
+    </div>
+  </form>
+
+  <p class="text-center text-muted mb-0">Copyright © 2020 All right reserved</p>
+</div>
+
+<script type="text/javascript" th:src="@{/lightYear/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/lyear-loading.js}"></script>
+<script type="text/javascript">
+  $(function() {
+    var load
+    // 监听表单提交事件
+    $('.login-form').submit(function(event) {
+      load = $('body').lyearloading({
+        opacity: 0.2,
+        spinnerSize: 'lg',
+        spinnerText: '后台处理中，请稍后...',
+        textColorClass: 'text-info',
+        spinnerColorClass: 'text-info'
+      });
+      event.preventDefault(); // 阻止默认行为
+      let formData = {merchantName: undefined,merchantPassword:undefined}
+      formData.merchantName = $('input[name="merchantName"]').val();
+      formData.merchantPassword = $('input[name="merchantPassword"]').val();
+      // 发送 AJAX 请求
+      //请求接口
+      $.ajax({
+        url: baseUrl + '/api/login' //此处仅为模拟接口，实际使用请改成真实接口
+        ,method: 'POST'
+        ,contentType: 'application/json'
+        ,dataType: 'json'
+        ,data: JSON.stringify(formData),
+        success: function (res) {
+          if (res.code === 200) {
+            $.notify({
+              // options
+              icon:'mdi mdi-check',
+              message: res.msg,
+            },{
+              // settings
+              type: 'success',
+              placement: {
+                from:'top',
+                align:'center'
+              },
+              animate: {
+                enter: 'animated fadeInDown', // 入场动画，这里使用 fadeInDown
+                exit: 'animated fadeInDown' // 离场动画，这里使用 fadeOutUp
+              },
+              allow_dismiss: false, // 禁止用户关闭通知,
+            });
+            setTimeout(function () {
+              load.destroy()
+              // 登录成功跳转页面
+              window.location.href = baseUrl + '/index';
+            },1000)
+          }else {
+            $.notify({
+              // options
+              icon:'mdi mdi-alert',
+              message: res.msg,
+            },{
+              // settings
+              type: 'danger',
+              placement: {
+                from:'top',
+                align:'center'
+              },
+              animate: {
+                enter: 'animated fadeInDown', // 入场动画，这里使用 fadeInDown
+                exit: 'animated fadeInDown' // 离场动画，这里使用 fadeOutUp
+              },
+              allow_dismiss: false, // 禁止用户关闭通知
+            });
+            load.destroy()
+          }
+        },
+        error: function (res) {
+          load.destroy()
+        }
+      });
+    });
+
+    // 注册按钮
+    $('#regBtn').click(function () {
+      window.location.href = baseUrl + '/register';
+    })
+  });
+</script>
+</body>
+</html>

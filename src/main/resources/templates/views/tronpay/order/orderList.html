@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>订单列表-TRON-PAY</title>
+<link rel="icon" th:href="@{/assets/favicon.ico}" type="image/ico">
+
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/materialdesignicons.min.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/bootstrap.min.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/style.min.css}">
+  <link th:href="@{/lightYear/js/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet">
+  <link th:href="@{/lightYear/js/jquery-confirm/jquery-confirm.min.css}" rel="stylesheet">
+  <link th:href="@{/lightYear/js/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.css}" rel="stylesheet">
+    <style>
+        .no-wrap {
+            white-space: nowrap;
+        }
+        .no-wrap-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+  var url = window.location.href;
+  var baseUrl = ''
+  var pathname = window.location.pathname;
+  if (pathname === '/') {
+    baseUrl = url; // URL 中不包含路径部分
+  } else {
+    baseUrl = url.substring(0, url.indexOf(pathname)); // 提取基础 URL 部分
+  }
+</script>
+<body>
+<div class="container-fluid p-t-15">
+
+  <div class="row">
+
+    <div class="col-lg-12">
+      <div class="card">
+        <header class="card-header"><div class="card-title">订单记录</div></header>
+        <div class="card-body">
+            <div id="toolbar" class="toolbar-btn-action">
+                <div class="row">
+                    <div class="col">
+                        <button id="btn_callbacks" type="button" class="btn btn-success m-r-5">
+                            <span class="mdi mdi-send" aria-hidden="true"></span>回调
+                        </button>
+                        <button id="btn_deletes" type="button" class="btn btn-danger">
+                            <span class="mdi mdi-window-close" aria-hidden="true"></span>删除
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchToken" placeholder="Token">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchOrderId" placeholder="订单号">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchTransactionId" placeholder="交易hash">
+                    </div>
+                    <div class="col">
+                        <select class="form-control" id="searchOrderStatus">
+                            <option value="">全部</option>
+                            <option value="success">已支付</option>
+                            <option value="wait">待支付</option>
+                            <option value="failure">已失效</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <button id="searchBtn" class="btn btn-primary">搜索</button>
+                        <button id="clearBtn" class="btn btn-secondary">清空</button>
+                    </div>
+                </div>
+            </div>
+          <table id="tb_departments" ></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:src="@{/lightYear/js/jquery.min.js}"></script>
+<script th:src="@{/lightYear/js/popper.min.js}"></script>
+<script th:src="@{/lightYear/js/bootstrap.min.js}"></script>
+<script th:src="@{/lightYear/js/jquery-confirm/jquery-confirm.min.js}"></script>
+<script th:src="@{/lightYear/js/bootstrap-table/bootstrap-table.min.js}"></script>
+<script th:src="@{/lightYear/js/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>
+<script th:src="@{/lightYear/js/main.min.js}"></script>
+<script th:src="@{/lightYear/js/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/lyear-loading.js}"></script>
+
+<script type="text/javascript">
+
+    /*
+     * 提取通用的通知消息方法
+     * 这里只采用简单的用法，如果想要使用回调或者更多的用法，请查看lyear_js_notify.html页面
+     * @param $msg 提示信息
+     * @param $type 提示类型:'info', 'success', 'warning', 'danger'
+     * @param $delay 毫秒数，例如：1000
+     * @param $icon 图标，例如：'fa fa-user' 或 'glyphicon glyphicon-warning-sign'
+     * @param $from 'top' 或 'bottom' 消息出现的位置
+     * @param $align 'left', 'right', 'center' 消息出现的位置
+     */
+   function showNotify($msg, $type, $delay, $icon, $from, $align) {
+        $type  = $type || 'info';
+        $delay = $delay || 1000;
+        $from  = $from || 'top';
+        $align = $align || 'center';
+        $enter = $type === 'danger' ? 'animated shake' : 'animated fadeInUp';
+        if ($type === 'success') {
+            $icon = 'mdi mdi-check'
+        }else if ($type === 'danger') {
+            $icon = 'mdi mdi-alert'
+        }else if ($type === 'info') {
+            $icon = 'mdi mdi-information'
+        }else {
+            $icon = 'mdi mdi-alert-circle'
+        }
+        jQuery.notify({
+                icon: $icon,
+                message: $msg
+            },
+            {
+                element: 'body',
+                type: $type,
+                allow_dismiss: true,
+                newest_on_top: true,
+                showProgressbar: false,
+                placement: {
+                    from: $from,
+                    align: $align
+                },
+                offset: 20,
+                spacing: 10,
+                z_index: 10800,
+                delay: $delay,
+                animate: {
+                    enter: $enter,
+                    exit: 'animated fadeOutDown'
+                }
+            });
+    }
+   function initTable() {
+       $('#tb_departments').bootstrapTable({
+           classes: 'table table-bordered table-hover table-striped',
+           url: '/api/orderList',
+           method: 'get',
+           dataType: 'json', // 因为本示例中是跨域的调用,所以涉及到ajax都采用jsonp,
+           uniqueId: 'token',
+           idField: 'token', // 每行的唯一标识字段
+           toolbar: '#toolbar', // 工具按钮容器
+           // clickToSelect: true,     // 是否启用点击选中行
+           showColumns: true, // 是否显示所有的列
+           showRefresh: true, // 是否显示刷新按钮
+           // showToggle: true, // 是否显示详细视图和列表视图的切换按钮(clickToSelect同时设置为true时点击会报错)
+           pagination: true, // 是否显示分页
+           cache: false,
+           // sortOrder: "asc", // 排序方式
+           onRefresh: function () {
+
+           },
+           // 传递参数
+           queryParams: function(params) {
+               return {
+                   pageSize: params.limit, // 每页数据量
+                   pageNum: (params.offset / params.limit) + 1,
+                   token: params.token,
+                   orderId: params.orderId,
+                   transactionId: params.transactionId,
+                   orderStatus: params.orderStatus
+               };
+           },
+           sidePagination: "server", // 分页方式：client客户端分页，server服务端分页
+           pageNumber: 1, // 初始化加载第一页，默认第一页
+           pageSize: 10, // 每页的记录行数
+           pageList: [10, 25, 50, 100], // 可供选择的每页的行数
+           // search: true,                      // 是否显示表格搜索，此搜索是客户端搜索
+           //showExport: true,        // 是否显示导出按钮, 导出功能需要导出插件支持(tableexport.min.js)
+           //exportDataType: "basic", // 导出数据类型, 'basic':当前页, 'all':所有数据, 'selected':选中的数据
+           fixedColumns: true,
+           fixedNumber: 1,
+           fixedRightNumber: 1,
+           columns: [
+               {
+                   field: 'state',
+                   checkbox: true, // 是否显示复选框
+                   align: 'center'
+               },{
+                   field: 'token',
+                   title: 'token',
+                   align: 'center',
+                   class: 'no-wrap-cell'
+               },
+               {
+                   field: 'orderId',
+                   title: '订单号',
+                   align: 'center',
+                   class: 'no-wrap-cell'
+               },
+               {
+                   field: 'coinType',
+                   title: '币种',
+                   align: 'center'
+               },
+               {
+                   field: 'transactionId',
+                   title: '交易hash',
+                   align: 'center',
+                   class: 'no-wrap-cell',
+                   formatter: function(value, row, index) {
+                       if (row.transactionId && row.network) {
+                           let url = row.network + '/#/transaction/' + row.transactionId;
+                          return  '<a href="' + url + '" target="_blank">' + row.transactionId + '</a>'
+                       }
+                       return value;
+                   },
+               },
+               {
+                   field: 'amount',
+                   title: '订单金额',
+                   align: 'center'
+               },
+               {
+                   field: 'payAmount',
+                   title: '支付金额',
+                   align: 'center'
+               },
+               {
+                   field: 'collectionAddress',
+                   title: '收款钱包',
+                   align: 'center',
+                   class: 'no-wrap-cell',
+                   formatter: function(value, row, index) {
+                       if (row.collectionAddress && row.network) {
+                           let url = row.network + '/#/address/' + row.collectionAddress;
+                           return  '<a href="' + url + '" target="_blank">' + row.collectionAddress + '</a>'
+                       }
+                       return value;
+                   },
+               },
+               {
+                   field: 'paymentAddress',
+                   title: '付款钱包',
+                   align: 'center',
+                   class: 'no-wrap-cell',
+                   formatter: function(value, row, index) {
+                       if (row.paymentAddress && row.network) {
+                           let url = row.network + '/#/address/' + row.paymentAddress;
+                           return  '<a href="' + url + '" target="_blank">' + row.paymentAddress + '</a>'
+                       }
+                       return value;
+                   },
+               },
+               {
+                   field: 'createTimeStamp',
+                   title: '创建时间',
+                   align: 'center',
+                   formatter: function(value, row, index) {
+                       // 将时间戳转换为日期对象
+                       var date = new Date(parseInt(value)); // 乘以1000是因为JavaScript中的Date对象使用毫秒为单位
+
+                       // 将日期对象格式化为字符串
+                       return date.getFullYear() + '-' +
+                           ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+                           ('0' + date.getDate()).slice(-2) + ' ' +
+                           ('0' + date.getHours()).slice(-2) + ':' +
+                           ('0' + date.getMinutes()).slice(-2) + ':' +
+                           ('0' + date.getSeconds()).slice(-2);
+                   },
+                   class: 'no-wrap-cell'
+               },
+               {
+                   field: 'failureTimeStamp',
+                   title: '失效时间',
+                   align: 'center',
+                   formatter: function(value, row, index) {
+                       // 将时间戳转换为日期对象
+                       var date = new Date(parseInt(value)); // 乘以1000是因为JavaScript中的Date对象使用毫秒为单位
+
+                       // 将日期对象格式化为字符串
+                       return date.getFullYear() + '-' +
+                           ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+                           ('0' + date.getDate()).slice(-2) + ' ' +
+                           ('0' + date.getHours()).slice(-2) + ':' +
+                           ('0' + date.getMinutes()).slice(-2) + ':' +
+                           ('0' + date.getSeconds()).slice(-2);
+                   },
+                   class: 'no-wrap-cell'
+               },
+               {
+                   field: 'officialPayUrl',
+                   title: '官方收银台',
+                   align: 'center',
+                   class: 'no-wrap-cell',
+                   formatter: function(value, row, index) {
+                       if (row.orderStatus === 'wait') {
+                           let url = baseUrl + '/pay/wait/?token=' + row.token;
+                           return  '<a href="' + url + '" target="_blank">' + '收银台地址' + '</a>'
+                       }
+                       return '-';
+                   },
+               },
+               // {
+               //     field: 'notifyUrl',
+               //     title: '回调地址',
+               //     align: 'center',
+               //     class: 'no-wrap-cell'
+               // },
+               {
+                   field: 'notifyStatus',
+                   title: '回调状态',
+                   formatter: function(value, row, index) {
+                       if (row.notifyStatus === 'success') {
+                           value = '<span class="badge badge-success">回调成功</span>';
+                       } else if (row.notifyStatus === 'wait') {
+                           value = '<span class="badge badge-secondary">待回调</span>';
+                       } else {
+                           value = '<span class="badge badge-danger">回调失败</span>';
+                       }
+                       return value;
+                   },
+                   align: 'center'
+               },
+               {
+                   field: 'orderStatus',
+                   title: '订单状态',
+                   formatter: function(value, row, index) {
+                       if (row.orderStatus === 'success') {
+                           value = '<span class="badge badge-success">已支付</span>';
+                       } else if (row.orderStatus === 'wait') {
+                           value = '<span class="badge badge-secondary">待支付</span>';
+                       } else {
+                           value = '<span class="badge badge-danger">已失效</span>';
+                       }
+                       return value;
+                   },
+                   align: 'center'
+               },
+               {
+                   field: 'notifyCount',
+                   title: '回调次数',
+                   align: 'center'
+               },
+               {
+                   field: 'operate',
+                   align: 'center',
+                   title: '操作',
+                   formatter: btnGroup, // 自定义方法
+                   events: {
+                       'click .edit-btn': function(event, value, row, index) {
+                           callbackOrder(row);
+                       },
+                       'click .del-btn': function(event, value, row, index) {
+                           delOrder(row);
+                       }
+                   },
+                   class: 'no-wrap'
+               }
+           ],
+           responseHandler: function (response) {
+               response.data.forEach(row => {
+                   row.state = false
+               })
+               // 将数据转换为Bootstrap Table要求的JSON对象数组形式
+               return {
+                   total: response.count,
+                   rows: response.data
+               };
+           },
+           onColumnSwitch: function() {
+               // // 合并相同列(在切换可视列是也需要执行一次，否则会失效)
+               // var data = $('#tb_departments').bootstrapTable('getData', true);
+               // mergeCells(data, "nationality", 1, $('#tb_departments'));
+               // mergeCells(data, "category", 1, $('#tb_departments'));
+           },
+           onLoadSuccess: function(data) {
+               // $("[data-toggle='tooltip']").tooltip();
+               // // 合并相同列
+               // var data = $('#tb_departments').bootstrapTable('getData', true);
+               // mergeCells(data, "nationality", 1, $('#tb_departments'));
+               // mergeCells(data, "category", 1, $('#tb_departments'));
+               // $('#tb_departments').bootstrapTable('uncheckAll');
+           },
+           formatLoadingMessage: function() {
+               // 使用 lyear-loading.js 插件的HTML结构作为加载消息
+               return '<div class="lyear-loading lyear-loading-double-circle" style="display: inline-block;"></div>';
+           },
+       });
+   }
+
+   function callBack(tokens) {
+       $.confirm({
+           title: '提示',
+           content: '确认回调当前所选订单？',
+           type: 'orange',
+           typeAnimated: true,
+           buttons: {
+               confirm: {
+                   text: '确认',
+                   btnClass: 'btn-blue',
+                   action: function() {
+                       const loader = $('body').lyearloading({
+                           opacity: 0.2,
+                           spinnerSize: 'lg'
+                       });
+                       //执行 Ajax 后重载
+                       $.ajax({
+                           type: 'GET',
+                           url: baseUrl + '/api/callback',
+                           dataType: 'json',
+                           data: {tokens: tokens},
+                           traditional: true,
+                           success: function(res) {
+                               if (res.code === 200) {
+                                   showNotify(res.msg,'success')
+                                   setTimeout(function () {
+                                       $('button[name="refresh"]').trigger('click');
+                                   },500)
+
+                               }else {
+                                   showNotify(res.msg,'danger')
+                               }
+                               loader.destroy()
+                           },
+                           error: function (res) {
+                               showNotify(res.msg,'danger')
+                               loader.destroy()
+                           }
+                       });
+                   }
+               },
+               cancel: {
+                   text: '取消',
+                   action: function() {}
+               }
+           }
+       });
+   }
+
+   function del(tokens) {
+       $.confirm({
+           title: '提示',
+           content: '确认要删除所选订单？',
+           type: 'orange',
+           typeAnimated: true,
+           buttons: {
+               confirm: {
+                   text: '确认',
+                   btnClass: 'btn-blue',
+                   action: function() {
+                       var loader = $('body').lyearloading({
+                           opacity: 0.2,
+                           spinnerSize: 'lg'
+                       });
+                       //执行 Ajax 后重载
+                       $.ajax({
+                           type: 'GET',
+                           url: baseUrl + '/api/delOrder',
+                           dataType: 'json',
+                           data: {tokens: tokens},
+                           traditional: true,
+                           success: function(res) {
+                               if (res.code === 200) {
+                                   $('button[name="refresh"]').trigger('click');
+                                   showNotify(res.msg,'success')
+                               }else {
+                                   showNotify(res.msg,'danger')
+                               }
+                               loader.destroy()
+                           }
+                       });
+                   }
+               },
+               cancel: {
+                   text: '取消',
+                   action: function() {}
+               }
+           }
+       });
+   }
+
+    $('#searchBtn').on('click', function() {
+        var searchToken = $('#searchToken').val();
+        var searchOrderId = $('#searchOrderId').val();
+        var searchTransactionId = $('#searchTransactionId').val();
+        var searchOrderStatus = $('#searchOrderStatus').val();
+        $('#tb_departments').bootstrapTable('refresh', {query: {
+                token: searchToken,
+                orderId: searchOrderId,
+                transactionId: searchTransactionId,
+                orderStatus: searchOrderStatus
+            }});
+    });
+
+    $('#clearBtn').on('click', function() {
+        $('#searchToken').val('');
+        $('#searchOrderId').val('');
+        $('#searchTransactionId').val('');
+        $('#searchOrderStatus').val('');
+        $('#tb_departments').bootstrapTable('refresh');
+    });
+
+// 操作按钮
+function btnGroup() {
+	let html =
+		'<a href="#!" class="btn btn-xs btn-default m-r-5 edit-btn" title="回调" data-toggle="tooltip"><i class="mdi mdi-send"></i></a>' +
+		'<a href="#!" class="btn btn-xs btn-default del-btn" title="删除" data-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>';
+	return html;
+}
+
+// 操作方法 - 回调订单
+function callbackOrder(row) {
+    let tokens = [row.token]
+    //执行 Ajax 后重载
+    callBack(tokens)
+}
+// 操作方法 - 删除
+function delOrder(row) {
+	let tokens = [row.token]
+    del(tokens)
+}
+// toolBar 按钮事件
+   $('#btn_deletes').on('click', function() {
+       let tableData = $('#tb_departments').bootstrapTable('getData');
+       const tokenList = tableData.filter(item => item.state === true).map(item => item.token);
+       if (tokenList.length <= 0) {
+           showNotify('请选择数据')
+       }else del(tokenList)
+   });
+
+   // 获取回调按钮并绑定点击事件
+   $('#btn_callbacks').on('click', function() {
+       let tableData = $('#tb_departments').bootstrapTable('getData');
+       const tokenList = tableData.filter(item => item.state === true).map(item => item.token);
+       if (tokenList.length <= 0) {
+           showNotify('请选择数据')
+       }else callBack(tokenList)
+   });
+   $(function () {
+       initTable()
+   })
+</script>
+</body>
+</html>

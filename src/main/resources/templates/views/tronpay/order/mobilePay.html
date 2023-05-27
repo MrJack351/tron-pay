@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <title>收银台</title>
+    <link rel="stylesheet" th:href="@{/css/mobile.min.css}" />
+</head>
+
+<body th:attr="data-type=${type},endTime=${endTime}">
+
+<h1 class="header">
+
+    收银台
+
+</h1>
+<h4 class="title">
+    请使用支持波场网络（tron）的钱包或交易软件进行转账
+</h4>
+<div class="meta-container container">
+    <div class="item">
+        <span class="content parse-action" data-ref="#amount-content" data-msg="金额已复制" th:text="${amount + ' ' + coinType}">
+
+        </span>
+        </span>
+        <div class="parse-action" data-ref="#amount-content" data-msg="金额已复制">
+            <img th:src="@{/assets/parse.png}" alt="">
+        </div>
+    </div>
+    <div class="item">
+        <span th:text="${address}" class="content parse-action" data-ref="#address-content" data-msg="地址已复制">
+        </span>
+        <div class="parse-action" data-ref="#address-content" data-msg="地址已复制">
+            <img th:src="@{/assets/parse.png}" alt="">
+        </div>
+    </div>
+</div>
+<ol class="warning-container container">
+    <li>
+        请在15分钟之内完成付款，超时付款不会到账。
+    </li>
+    <li>
+        转账金额需与上方显示的订单金额一致，否则系统不到账。
+    </li>
+    <li>
+        点击金额和地址区域可直接复制。
+    </li>
+    <li>
+        如扫码后无法付款，请直接粘贴地址及金额进行付款操作。
+    </li>
+    <li>
+        如出现转账金额与订单金额不一致系统未到账的情况，请联系管理员。
+    </li>
+</ol>
+
+
+<input type="text" readonly="readonly" class="parse-content" id="parse-amount" th:value="${amount}" />
+<input type="text" readonly="readonly" class="parse-content" id="parse-address" th:value="${address}" />
+
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/main.min.js}"></script>
+<script th:inline="javascript">
+    const endTime = /*[[${endTime}]]*/ "";
+    const type = /*[[${type}]]*/ "";
+</script>
+</body>
+
+</html>

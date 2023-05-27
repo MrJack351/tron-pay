@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tron.pay.mapper.OrderMapper">
+
+    <select id="selectWeekDataAmount" resultType="java.util.Map">
+        SELECT
+        date_list.date AS date,
+        (
+        SELECT
+        IFNULL(SUM(CONVERT(o.pay_amount, DECIMAL(10, 2))), 0)
+        FROM
+        tb_order o
+        WHERE
+        merchant_id = #{merchantId}
+        AND order_status = 'success'
+        AND DATE(FROM_UNIXTIME(CONVERT(create_time_stamp, UNSIGNED INTEGER) / 1000)) = date_list.date
+        ) AS total_amount
+        FROM
+        (
+        SELECT
+        DATE_SUB(CURDATE(), INTERVAL n DAY) AS date
+        FROM
+        (
+        SELECT 0 AS n UNION ALL
+        SELECT 1 UNION ALL
+        SELECT 2 UNION ALL
+        SELECT 3 UNION ALL
+        SELECT 4 UNION ALL
+        SELECT 5 UNION ALL
+        SELECT 6
+        ) AS num
+        ) AS date_list
+        WHERE
+        date_list.date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        AND date_list.date &lt;=  CURDATE()
+        ORDER BY
+        date ASC;
+    </select>
+
+    <select id="selectWeekDataCount" resultType="java.util.Map">
+        SELECT
+        date_list.date AS date,
+        (
+        SELECT
+        COUNT(o.token)
+        FROM
+        tb_order o
+        WHERE
+        merchant_id = #{merchantId}
+        AND order_status = 'success'
+        AND DATE(FROM_UNIXTIME(CONVERT(create_time_stamp, UNSIGNED INTEGER) / 1000)) = date_list.date
+        ) AS order_count
+        FROM
+        (
+        SELECT
+        DATE_SUB(CURDATE(), INTERVAL n DAY) AS date
+        FROM
+        (
+        SELECT 0 AS n UNION ALL
+        SELECT 1 UNION ALL
+        SELECT 2 UNION ALL
+        SELECT 3 UNION ALL
+        SELECT 4 UNION ALL
+        SELECT 5 UNION ALL
+        SELECT 6
+        ) AS num
+        ) AS date_list
+        WHERE
+        date_list.date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        AND date_list.date &lt;=  CURDATE()
+        ORDER BY
+        date ASC;
+    </select>
+</mapper>

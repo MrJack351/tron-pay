@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>统计 - TRON-PAY</title>
+<link rel="icon" th:href="@{/assets/favicon.ico}" type="image/ico">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/materialdesignicons.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/bootstrap.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/style.min.css}">
+
+  <script type="text/javascript">
+    var url = window.location.href;
+    var baseUrl = ''
+    var pathname = window.location.pathname;
+    if (pathname === '/') {
+      baseUrl = url; // URL 中不包含路径部分
+    } else {
+      baseUrl = url.substring(0, url.indexOf(pathname)); // 提取基础 URL 部分
+    }
+  </script>
+
+</head>
+  
+<body>
+<div class="container-fluid p-t-15">
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">成交金额</div>
+        </div>
+        <div class="card-body">
+          <canvas class="js-chartjs-bars"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">成交订单数</div>
+        </div>
+        <div class="card-body">
+          <canvas class="js-chartjs-lines"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<script type="text/javascript" th:src="@{/lightYear/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/main.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/Chart.min.js}"></script>
+<script type="text/javascript">
+  function initCharts() {
+    var $dashChartBarsCnt  = jQuery( '.js-chartjs-bars' )[0].getContext( '2d' ),
+            $dashChartLinesCnt = jQuery( '.js-chartjs-lines' )[0].getContext( '2d' );
+
+    var $dashChartBarsData = {
+      labels: labels1,
+      datasets: [
+        {
+          label: '成交金额',
+          data: data1,
+          borderColor: '#358ed7',
+          backgroundColor: 'rgba(53, 142, 215, 0.175)',
+          borderWidth: 1,
+          fill: false,
+          lineTension: 0.5
+        }
+      ],
+    };
+
+    var $dashChartLinesData = {
+      labels: labels2,
+      datasets: [
+        {
+          label: '成交订单数',
+          data: data2,
+          borderColor: '#358ed7',
+          backgroundColor: 'rgba(53, 142, 215, 0.175)',
+          borderWidth: 1,
+          fill: false,
+          lineTension: 0.5
+        }
+      ]
+    };
+
+    new Chart($dashChartBarsCnt, {
+      type: 'line',
+      data: $dashChartBarsData
+    });
+
+    new Chart($dashChartLinesCnt, {
+      type: 'line',
+      data: $dashChartLinesData,
+    });
+  }
+
+  $.ajax({
+    type: 'GET',
+    url: baseUrl + '/api/orderStatus',
+    dataType: 'json',
+    traditional: true,
+    success: function(res) {
+      if (res.code === 200) {
+        labels1 = res.data.labels1;
+        data1 = res.data.data1;
+        labels2 = res.data.labels2;
+        data2 = res.data.data2;
+        initCharts(); // 在这里初始化图表
+      } else {
+
+      }
+    },
+    error: function (res) {
+
+    }
+  });
+
+</script>
+</body>
+</html>

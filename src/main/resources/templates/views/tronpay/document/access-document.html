@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>个人信息</title>
+<link rel="icon" th:href="@{/assets/favicon.ico}" type="image/ico">
+<meta name="author" content="yinqi">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/materialdesignicons.min.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/bootstrap.min.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/animate.min.css}">
+  <link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/style.min.css}">
+  <script type="text/javascript">
+    var url = window.location.href;
+    var baseUrl = ''
+    var pathname = window.location.pathname;
+    if (pathname === '/') {
+      baseUrl = url; // URL 中不包含路径部分
+    } else {
+      baseUrl = url.substring(0, url.indexOf(pathname)); // 提取基础 URL 部分
+    }
+  </script>
+</head>
+
+<body>
+
+<div class="container">
+  <h1 class="mt-5">TRON-PAY接入文档</h1>
+  <p>欢迎使用我们的 API 服务！本文档将会指导您如何接入 API 服务并开始使用它们。</p>
+
+  <h2 class="mt-4">授权方式</h2>
+  <p>创建订单需要商户的私钥，私钥请登录平台获取。</p>
+
+  <h2 class="mt-4">响应码</h2>
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>响应码</th>
+      <th>说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>-1</td>
+      <td>请求失败，具体原因详见msg参数</td>
+    </tr>
+    <tr>
+      <td>200</td>
+      <td>成功状态码</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2 class="mt-4">创建订单(POST)</h2>
+  <p>该 API 用于商户订单创建。</p>
+  <pre><code>/api/createOrder</code></pre>
+
+  <h3 class="mt-3">请求参数</h3>
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>参数名</th>
+      <th>类型</th>
+      <th>必填</th>
+      <th>说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>orderId</td>
+      <td>string</td>
+      <td>否</td>
+      <td>商户自定订单号</td>
+    </tr>
+    <tr>
+      <td>merchantKey</td>
+      <td>string</td>
+      <td>是</td>
+      <td>商户私钥</td>
+    </tr>
+    <tr>
+      <td>amount</td>
+      <td>string</td>
+      <td>是</td>
+      <td>订单金额</td>
+    </tr>
+    <tr>
+      <td>coinType</td>
+      <td>string</td>
+      <td>是</td>
+      <td>币种: USDT / TRX 需大写</td>
+    </tr>
+    <tr>
+      <td>redirectUrl</td>
+      <td>string</td>
+      <td>否</td>
+      <td>支付成功跳转url （暂未开放）</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-3">返回结果</h3>
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>参数名</th>
+      <th>类型</th>
+      <th>说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>code</td>
+      <td>int</td>
+      <td>状态码</td>
+    </tr>
+    <tr>
+      <td>msg</td>
+      <td>string</td>
+      <td>提示信息</td>
+    </tr>
+    <tr>
+      <td>data</td>
+      <td>object</td>
+      <td>响应数据</td>
+    </tr>
+    <tr>
+      <td>data.coinType</td>
+      <td>string</td>
+      <td>币种</td>
+    </tr>
+    <tr>
+      <td>data.officialPayUrl</td>
+      <td>string</td>
+      <td>该笔订单官方收银台地址</td>
+    </tr>
+    <tr>
+      <td>data.amount</td>
+      <td>string</td>
+      <td>订单金额</td>
+    </tr>
+    <tr>
+      <td>data.collectionAddress</td>
+      <td>string</td>
+      <td>收款钱包地址</td>
+    </tr>
+    <tr>
+      <td>data.payAmount</td>
+      <td>string</td>
+      <td>用户实际支付金额</td>
+    </tr>
+    <tr>
+      <td>data.orderId</td>
+      <td>string</td>
+      <td>商户自定订单id</td>
+    </tr>
+    <tr>
+      <td>data.sign</td>
+      <td>string</td>
+      <td>签名</td>
+    </tr>
+    <tr>
+      <td>data.timeout</td>
+      <td>string</td>
+      <td>订单失效时间戳(毫秒)</td>
+    </tr>
+    <tr>
+      <td>data.token</td>
+      <td>string</td>
+      <td>订单token，用于查询</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-3">请求示例</h3>
+  <pre><code>{
+  "orderId": "商户自定订单号",
+  "merchantKey": "商户私钥",
+  "amount": "20",
+  "coinType": "USDT",
+  "redirectUrl": "支付成功跳转url"
+}</code></pre>
+
+  <h3 class="mt-3">返回示例</h3>
+  <pre><code>{
+  "code": 200,
+  "msg": "订单创建成功",
+  "data": {
+    "coinType": "USDT",
+    "officialPayUrl": "官方收银台地址",
+    "amount": "20",
+    "collectionAddress": "收款钱包地址",
+    "payAmount": "20.01",
+    "orderId": "订单号",
+    "sign": "签名",
+    "timeout": "订单失效时间",
+    "token": "订单唯一token"
+  }
+}</code></pre>
+
+  <h2 class="mt-4">订单查询(GET)</h2>
+  <p>该 API 用于查询订单信息。</p>
+  <pre><code>/api/queryOrder?token=订单token</code></pre>
+
+  <h3 class="mt-3">请求参数</h3>
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>参数名</th>
+      <th>类型</th>
+      <th>必填</th>
+      <th>说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>token</td>
+      <td>string</td>
+      <td>是</td>
+      <td>订单token</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-3">返回结果</h3>
+  <table class="table table-bordered">
+    <thead>
+    <tr>
+      <th>参数名</th>
+      <th>类型</th>
+      <th>说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>code</td>
+      <td>string</td>
+      <td>状态码</td>
+    </tr>
+    <tr>
+      <td>success</td>
+      <td>boolean</td>
+      <td>响应状态</td>
+    </tr>
+    <tr>
+      <td>status</td>
+      <td>boolean</td>
+      <td>订单状态， true：已支付，false：待支付</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt-3">请求示例</h3>
+  <pre><code>/api/queryOrder?token=订单token</code></pre>
+
+  <h3 class="mt-3">返回示例</h3>
+  <pre><code>{
+    "code": 200,//响应状态码
+    "success": true,
+    "status": false //订单状态， true：已支付，false：待支付
+}</code></pre>
+
+  <h2 class="mt-4">签名算法</h2>
+
+  <h3 class="mt-3">计算方法</h3>
+  <pre><code>
+    // 签名计算方法：MD5(金额 + 币种 + token + 商户私钥)
+    String md5Str = amount(创建订单的金额，不是实际支付金额) + coinType + token + merchantKey;
+    String sign = md5.digestHex(md5Str);
+    //将计算好的签名与回调的签名比对即可完成验签
+</code></pre>
+
+  <h2 class="mt-4">订单回调通知(POST)</h2>
+  <pre><code>{
+    "coinType": "USDT",
+    "amount": 订单金额,
+    "payAmount": 实际支付金额,
+    "orderId": "订单id",
+    "sign": "订单签名",
+    "token": "订单token"
+}
+}</code></pre>
+  <p>商户收到回调通知，若验签成功请返回以下数据:</p>
+  <pre><code>{
+    "code": 200,
+    "data": "ok"
+}</code></pre>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script th:src="@{/lightYear/js/jquery.min.js}"></script>
+<script th:src="@{/lightYear/js/popper.min.js}"></script>
+<script th:src="@{/lightYear/js/bootstrap.min.js}"></script>
+</body>
+</html>

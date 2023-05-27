@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>首页 - TRON-PAY后台管理</title>
+<link rel="icon" th:href="@{/assets/favicon.ico}" type="image/ico">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/materialdesignicons.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/bootstrap.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/lightYear/css/style.min.css}">
+</head>
+  
+<body>
+<div class="container-fluid p-t-15">
+  
+  <div class="row">
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body clearfix">
+          <div class="flex-box">
+            <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-currency-cny fs-22"></i></span>
+            <span th:text="${todayTurnover + ' USDT'}" class="fs-22 lh-22"></span>
+          </div>
+          <div class="text-right">今日成交额</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-danger text-white">
+        <div class="card-body clearfix">
+          <div class="flex-box">
+            <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-square-inc-cash fs-22"></i></span>
+            <span th:text="${allTurnover + ' USDT'}" class="fs-22 lh-22"></span>
+          </div>
+          <div class="text-right">总成交额</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-success text-white">
+        <div class="card-body clearfix">
+          <div class="flex-box">
+            <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-shopping fs-22"></i></span>
+            <span th:text="${dailyOrderCount}" class="fs-22 lh-22"></span>
+          </div>
+          <div class="text-right">今日订单数(含未支付订单)</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-purple text-white">
+        <div class="card-body clearfix">
+          <div class="flex-box">
+            <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-shopping fs-22"></i></span>
+            <span th:text="${totalOrderCount}" class="fs-22 lh-22"></span>
+          </div>
+          <div class="text-right">总订单数(含未支付订单)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<!--  <div class="row">-->
+<!--    <div class="col-md-6">-->
+<!--      <div class="card">-->
+<!--        <div class="card-header">-->
+<!--          <div class="card-title">每周用户</div>-->
+<!--        </div>-->
+<!--        <div class="card-body">-->
+<!--          <canvas class="js-chartjs-bars"></canvas>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    -->
+<!--    <div class="col-md-6">-->
+<!--      <div class="card">-->
+<!--        <div class="card-header">-->
+<!--          <div class="card-title">交易历史记录</div>-->
+<!--        </div>-->
+<!--        <div class="card-body">-->
+<!--          <canvas class="js-chartjs-lines"></canvas>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--     -->
+<!--  </div>-->
+  
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <header class="card-header"><div class="card-title">近期订单</div></header>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>token</th>
+                  <th>订单金额</th>
+                  <th>币种</th>
+                  <th>创建时间</th>
+                  <th>失效时间</th>
+                  <th>订单状态</th>
+                  <th>回调状态</th>
+                </tr>
+              </thead>
+              <!-- 使用条件语句判断订单数据是否为空 -->
+              <tbody th:if="${not #lists.isEmpty(orders)}">
+              <tr th:each="order : ${orders}">
+                <td th:text="${order.token}"></td>
+                <td th:text="${order.payAmount}"></td>
+                <td th:text="${order.coinType}"></td>
+                <td th:text="${T(com.tron.pay.utils.CommonUtils).convertMillisecondsToDateString(order.createTimeStamp)}"></td>
+                <td th:text="${T(com.tron.pay.utils.CommonUtils).convertMillisecondsToDateString(order.failureTimeStamp)}"></td>
+                <td>
+                  <span th:text="${order.orderStatus == 'wait' ? '待支付' : order.orderStatus == 'success' ? '已支付' : order.orderStatus == 'failure' ? '已失效' : ''}" th:classappend="${T(com.tron.pay.utils.CommonUtils).getStatusClass(order.orderStatus)}"></span>
+                </td>
+                <td><span th:text="${order.notifyStatus == 'wait' ? '待回调' : order.notifyStatus == 'success' ? '已回调' : order.notifyStatus == 'failure' ? '回调失败' : ''}" th:classappend="${T(com.tron.pay.utils.CommonUtils).getStatusClass(order.notifyStatus)}"></span></td>
+              </tr>
+              </tbody>
+
+              <!-- 当订单数据为空时，显示“暂无订单数据” -->
+              <tbody th:unless="${not #lists.isEmpty(orders)}">
+              <tr>
+                <td colspan="6" class="text-center">暂无订单数据</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+
+<script type="text/javascript" th:src="@{/lightYear/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/popper.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/main.min.js}"></script>
+<script type="text/javascript" th:src="@{/lightYear/js/Chart.min.js}"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

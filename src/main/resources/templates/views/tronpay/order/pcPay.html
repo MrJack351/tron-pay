@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:t="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>收银台</title>
+    <link th:href="@{/css/pc.min.css}" rel="stylesheet"/>
+</head>
+
+<body th:attr="data-type=${type},endTime=${endTime}">
+<style>
+
+</style>
+<div class="container">
+    <h2 th:text="${title}" class="header">
+
+    </h2>
+    <div class="main">
+        <div class="content">
+            <div class="hint">
+                请使用支持波场网络（tron）的钱包或交易软件进行转账
+            </div>
+            <h2 class="meta">
+                <div class="amount">
+                    <span th:text="${amount}" class="unit"></span>
+                    <span th:text="${coinType}" class="unit"></span>
+                </div>
+                <span class="parse-action" data-ref="#parse-amount" data-msg="金额已复制">
+                    <img th:src="@{/assets/parse.png}" alt="">
+                </span>
+            </h2>
+            <div class="meta">
+                <div th:text="${address}" class="address">
+
+                </div>
+                <span class="parse-action" data-ref="#parse-address" data-msg="地址已复制">
+                    <img th:src="@{/assets/parse.png}" alt="">
+                </span>
+            </div>
+            <div class="qrcode">
+                <img th:src="'data:image/png;base64,' + ${qrcode}" alt="qrcode">
+            </div>
+            <div class="timer">
+                <ul class="downcount">
+                    <li>
+                        <span class="hours">00</span>
+                        <p class="hours_ref">时</p>
+                    </li>
+                    <li class="seperator">:</li>
+                    <li>
+                        <span class="minutes">00</span>
+                        <p class="minutes_ref">分</p>
+                    </li>
+                    <li class="seperator">:</li>
+                    <li>
+                        <span class="seconds">00</span>
+                        <p class="seconds_ref">秒</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="divider"></div>
+            <ol class="remark">
+                <li>
+                    请在15分钟之内完成付款，超时付款不会到账。
+                </li>
+                <li>
+                    转账金额需与上方显示的订单金额一致，否则系统不到账。
+                </li>
+                <li>
+                    点击金额和地址区域可直接复制。
+                </li>
+                <li>
+                    如扫码后无法付款，请直接粘贴地址及金额进行付款操作。
+                </li>
+                <li>
+                    如出现转账金额与订单金额不一致系统未到账的情况，请联系管理员。
+                </li>
+            </ol>
+        </div>
+    </div>
+    <input type="text" readonly="readonly" class="parse-content" id="parse-amount" th:value="${amount}" />
+    <input type="text" readonly="readonly" class="parse-content" id="parse-address" th:value="${address}" />
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/main.min.js}"></script>
+<script th:inline="javascript">
+    const endTime = /*[[${endTime}]]*/ "";
+    const type = /*[[${type}]]*/ "";
+</script>
+<script>
+    $(".downcount").downCount({
+        date: endTime // 结束时间，格式应为 "12/24/2012 12:00:00"
+    }, function() {
+        // console.log("倒计时结束");
+    });
+</script>
+</body>
+
+</html>
