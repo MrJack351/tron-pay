@@ -34,28 +34,28 @@
 
 首页
 
-![](.\image\Snipaste_2023-05-27_13-26-05.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-26-05.png)
 
 订单
 
-![](.\image\Snipaste_2023-05-27_13-26-24.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-26-24.png)
 
 订单统计
 
-![](.\image\Snipaste_2023-05-27_13-26-31.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-26-31.png)
 
 商户
 
-![](.\image\Snipaste_2023-05-27_13-26-36.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-26-36.png)
 
 收银台
 
-![](.\image\Snipaste_2023-05-27_13-27-04.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-27-04.png)
 
 支付成功
 
-![](.\image\Snipaste_2023-05-27_13-27-10.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-27-10.png)
 
 接入文档
 
-![](.\image\Snipaste_2023-05-27_13-26-53.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-26-53.png)
