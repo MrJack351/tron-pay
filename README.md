@@ -30,7 +30,7 @@
 
 登录
 
-![](.\image\Snipaste_2023-05-27_13-25-19.png)
+![](https://github.com/wangcheng-qaq/tron-pay/blob/master/image/Snipaste_2023-05-27_13-25-19.png)
 
 首页
 
