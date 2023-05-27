@@ -1,5 +1,6 @@
 # TRON-PAY
 
+USDT.TRC20 收款接口服务，稳定安全，秒级到账。USDT收款, USDT支付, USDT回调, USDT接口, USDT监控
 基于TRON链开发的trc20支付系统
 
 # 功能
